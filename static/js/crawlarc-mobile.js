@@ -56,6 +56,126 @@
     }
   }
 
+  function ensureToastNode() {
+    var existing = document.getElementById("crawlarc-toast");
+    if (existing) return existing;
+    var el = document.createElement("div");
+    el.id = "crawlarc-toast";
+    el.className = "crawlarc-toast";
+    el.setAttribute("role", "status");
+    el.setAttribute("aria-live", "polite");
+    document.body.appendChild(el);
+    return el;
+  }
+
+  function showToast(message) {
+    var el = ensureToastNode();
+    el.textContent = message;
+    el.classList.remove("is-visible");
+    // force reflow so transition restarts
+    void el.offsetWidth;
+    el.classList.add("is-visible");
+    window.clearTimeout(showToast._t);
+    showToast._t = window.setTimeout(function () {
+      el.classList.remove("is-visible");
+    }, 1800);
+  }
+
+  function wireCommentSuccessToast() {
+    var forms = document.querySelectorAll(
+      "form#commentform, form.comment-form"
+    );
+    for (var i = 0; i < forms.length; i++) {
+      var form = forms[i];
+      if (form.getAttribute("data-crawlarc-toast") === "1") continue;
+      form.setAttribute("data-crawlarc-toast", "1");
+
+      // Enable the button so users can click in this static archive
+      var submit = form.querySelector("#submit, input[type='submit']");
+      if (submit && submit.hasAttribute("disabled"))
+        submit.removeAttribute("disabled");
+
+      var author = form.querySelector("#author");
+      var email = form.querySelector("#email");
+      var comment = form.querySelector("#comment");
+
+      function clearFieldError(el) {
+        if (!el) return;
+        el.classList.remove("crawlarc-field-error");
+        el.removeAttribute("aria-invalid");
+      }
+      function setFieldError(el) {
+        if (!el) return;
+        el.classList.add("crawlarc-field-error");
+        el.setAttribute("aria-invalid", "true");
+      }
+
+      function validate() {
+        clearFieldError(author);
+        clearFieldError(email);
+        clearFieldError(comment);
+
+        var missing = [];
+        var nameVal = author ? String(author.value || "").trim() : "";
+        var emailVal = email ? String(email.value || "").trim() : "";
+        var commentVal = comment ? String(comment.value || "").trim() : "";
+
+        if (!nameVal) {
+          missing.push("Name");
+          setFieldError(author);
+        }
+        if (!emailVal) {
+          missing.push("Email");
+          setFieldError(email);
+        } else {
+          var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal);
+          if (!emailOk) {
+            missing.push("a valid Email");
+            setFieldError(email);
+          }
+        }
+        if (!commentVal) {
+          missing.push("Comment");
+          setFieldError(comment);
+        }
+
+        if (missing.length) {
+          showToast("Please enter: " + missing.join(", "));
+          return false;
+        }
+        return true;
+      }
+
+      author &&
+        author.addEventListener("input", function () {
+          clearFieldError(author);
+        });
+      email &&
+        email.addEventListener("input", function () {
+          clearFieldError(email);
+        });
+      comment &&
+        comment.addEventListener("input", function () {
+          clearFieldError(comment);
+        });
+
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        if (!validate()) return;
+        showToast("Sent successfully");
+      });
+
+      form.addEventListener("click", function (e) {
+        var btn = e.target && e.target.closest && e.target.closest("#submit");
+        if (btn) {
+          e.preventDefault();
+          if (!validate()) return;
+          showToast("Sent successfully");
+        }
+      });
+    }
+  }
+
   var mq = window.matchMedia("(max-width: 768px)");
   var inner = document.getElementById("off-canvas-inner");
   var navAnchor = document.getElementById("masthead-nav-anchor");
@@ -91,14 +211,13 @@
   function syncLayout() {
     var mobile = mq.matches;
     document.body.classList.toggle("layout-mobile-ready", mobile);
-    if (!inner || !nav || !secondary || !navAnchor || !secondaryAnchor) return;
     if (mobile) {
-      inner.appendChild(nav);
-      inner.appendChild(secondary);
+      if (inner && nav && navAnchor) inner.appendChild(nav);
+      if (inner && secondary) inner.appendChild(secondary);
     } else {
       closeDrawer();
-      navAnchor.appendChild(nav);
-      secondaryAnchor.appendChild(secondary);
+      if (nav && navAnchor) navAnchor.appendChild(nav);
+      if (secondary && secondaryAnchor) secondaryAnchor.appendChild(secondary);
     }
   }
 
@@ -133,6 +252,7 @@
 
   function boot() {
     enhanceBottomShareBoxes();
+    wireCommentSuccessToast();
     syncLayout();
   }
   if (document.readyState === "loading")
