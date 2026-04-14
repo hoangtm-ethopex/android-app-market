@@ -1,0 +1,37 @@
+name: Deploy android-app-market Production
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/private_key
+          chmod 600 ~/.ssh/private_key
+          eval "$(ssh-agent -s)"
+          ssh-add ~/.ssh/private_key
+          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to server
+        run: |
+          ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
+            set -e
+
+            cd /var/www/projects/android-app-market
+
+            pwd
+            ls -la
+
+            git fetch origin
+            git reset --hard origin/master
+          EOF
