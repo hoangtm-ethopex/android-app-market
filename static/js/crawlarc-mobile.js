@@ -255,6 +255,32 @@
     }
   });
 
+  function highlightActiveNav() {
+    var path = window.location.pathname.replace(/\/$/, '') || '/';
+    var metaEl = document.querySelector('meta[name="nav-section"]');
+    var hint = metaEl ? metaEl.getAttribute('content').trim() : '';
+    var items = document.querySelectorAll('#menu-home > li');
+    for (var i = 0; i < items.length; i++) {
+      var li = items[i];
+      var a = li.querySelector('a[href]');
+      if (!a) continue;
+      var href = (a.getAttribute('href') || '').replace(/\/$/, '') || '/';
+      var active = false;
+      if (hint) {
+        // Page has declared its section via <meta name="nav-section">
+        active = href.indexOf(hint) !== -1;
+      } else {
+        if (href === path) {
+          active = true;
+        } else if (href.indexOf('.html') === -1 && href.length > 1) {
+          // Directory-style href (e.g. /android-development-tutorial)
+          active = path.indexOf(href) === 0;
+        }
+      }
+      if (active) li.classList.add('current-menu-item');
+    }
+  }
+
   function boot() {
     try {
       wireCommentSuccessToast();
@@ -264,6 +290,9 @@
     } catch (e) {}
     try {
       syncLayout();
+    } catch (e) {}
+    try {
+      highlightActiveNav();
     } catch (e) {}
   }
   if (document.readyState === "loading")

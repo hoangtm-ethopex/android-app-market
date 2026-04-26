@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" type="text/css" href="/static/css/all.css" />
+  <meta charset="UTF-8" />
+  <meta name="nav-section" content="archive-2025.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Profiling and Optimizing Android App Performance - Android-App-Market.com</title>
+  <style type="text/css" id="custom-background-css">body.custom-background { background-color: #19243b; }</style>
+  <link rel="stylesheet" href="/static/css/crawlarc-mobile.css" />
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3553662353237662"
+       crossorigin="anonymous"></script>
+</head>
+<body class="single-post custom-background indexed single-author">
+  <div class="off-canvas-backdrop" id="off-canvas-backdrop" aria-hidden="true"></div>
+  <aside class="off-canvas-drawer" id="off-canvas-drawer" aria-hidden="true" aria-label="Menu and widgets">
+    <div class="off-canvas-drawer__header">
+      <span class="off-canvas-drawer__title">Menu</span>
+      <button type="button" class="off-canvas-drawer__close" id="drawer-close-btn" aria-label="Close menu">
+        &times;
+      </button>
+    </div>
+    <div class="off-canvas-drawer__scroll" id="off-canvas-inner"></div>
+  </aside>
+
+  <div id="page" class="hfeed">
+    <header id="masthead" role="banner">
+      <button type="button" class="drawer-hamburger" id="drawer-open-btn"
+        aria-controls="off-canvas-drawer" aria-expanded="false" aria-label="Open menu">
+        <span class="drawer-hamburger__bar" aria-hidden="true"></span>
+        <span class="drawer-hamburger__bar" aria-hidden="true"></span>
+        <span class="drawer-hamburger__bar" aria-hidden="true"></span>
+      </button>
+      <hgroup>
+        <h1 id="site-title"><a href="/index.html" title="Android-App-Market.com" rel="home">Android-App-Market.com</a></h1>
+        <h2 id="site-description">Android Development Tutorial</h2>
+      </hgroup>
+      <div id="masthead-nav-anchor">
+        <nav id="access" role="navigation">
+          <h1 class="assistive-text section-heading">Main menu</h1>
+          <div class="assistive-text skip-link"><a href="#content" title="Skip to content">Skip to content</a></div>
+          <div class="menu-home-container">
+            <ul id="menu-home" class="menu">
+              <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home">
+                <a href="/index.html" style="cursor:pointer">Home</a>
+              </li>
+              <li id="menu-item-637" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-637">
+                <a class="nav-android-news--desktop">Android News</a>
+                <ul class="sub-menu nav-android-submenu--desktop">
+                  <li class="menu-item"><a href="/android-phones" style="cursor:pointer">Phones</a></li>
+                  <li class="menu-item"><a href="/android-tablets" style="cursor:pointer">Tablets</a></li>
+                  <li class="menu-item"><a href="/android-books" style="cursor:pointer">Books</a></li>
+                  <li class="menu-item"><a href="/android-apps" style="cursor:pointer">Apps</a></li>
+                  <li class="menu-item"><a href="/android-ice-cream-sandwich" style="cursor:pointer">Ice cream Sandwich</a></li>
+                  <li class="menu-item"><a href="/android-jelly-bean" style="cursor:pointer">Jelly Bean</a></li>
+                </ul>
+                <details class="nav-android-news--mobile nav-news-details">
+                  <summary class="nav-news-summary">Android News</summary>
+                  <ul class="sub-menu">
+                    <li class="menu-item"><a href="/android-phones" style="cursor:pointer">Phones</a></li>
+                    <li class="menu-item"><a href="/android-tablets" style="cursor:pointer">Tablets</a></li>
+                    <li class="menu-item"><a href="/android-books" style="cursor:pointer">Books</a></li>
+                    <li class="menu-item"><a href="/android-apps" style="cursor:pointer">Apps</a></li>
+                    <li class="menu-item"><a href="/android-ice-cream-sandwich" style="cursor:pointer">Ice cream Sandwich</a></li>
+                    <li class="menu-item"><a href="/android-jelly-bean" style="cursor:pointer">Jelly Bean</a></li>
+                  </ul>
+                </details>
+              </li>
+              <li class="menu-item"><a href="/android-development-tutorial" style="cursor:pointer">Android Development</a></li>
+              <li class="menu-item"><a href="/android-money-making" style="cursor:pointer">Make Money</a></li>
+              <li class="menu-item"><a href="/archive-2025.html" style="cursor:pointer">Archive 2025</a></li>
+              <li class="menu-item"><a href="/archive-2026.html" style="cursor:pointer">Archive 2026</a></li>
+              <li class="menu-item"><a href="/privacy-policy.html" style="cursor:pointer">Privacy</a></li>
+              <li class="menu-item"><a href="/about.html" style="cursor:pointer">About</a></li>
+              <li class="menu-item"><a href="/contact.html" style="cursor:pointer">Contact</a></li>
+            </ul>
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <div id="main">
+      <div id="primary">
+        <div id="content" role="main">
+          <article id="post-android-performance-optimization-guide" class="post hentry category-android-development">
+            <header class="entry-header">
+              <div class="post-date">
+                <span class="month">Jul</span>
+                <span class="day">22</span>
+                <span class="year">2025</span>
+              </div>
+              <h1 class="entry-title">Profiling and Optimizing Android App Performance</h1>
+            </header>
+            <div class="entry-content">
+
+              <p>
+                Performance optimization without measurement is guesswork. This article covers the tools and
+                techniques that actually move the needle — from diagnosing startup time to eliminating jank in
+                scrolling lists.
+              </p>
+              <h3>Step 1: Measure First</h3>
+              <p>
+                Before changing any code, establish a baseline with reproducible benchmarks. The Macrobenchmark
+                library lets you measure startup time, scrolling performance, and custom scenarios in a controlled way.
+              </p>
+              <pre><code>@RunWith(AndroidJUnit4::class)
+class StartupBenchmark {
+    @get:Rule
+    val benchmarkRule = MacrobenchmarkRule()
+
+    @Test
+    fun startup() = benchmarkRule.measureRepeated(
+        packageName = "com.example.app",
+        metrics = listOf(StartupTimingMetric()),
+        iterations = 5,
+        startupMode = StartupMode.COLD
+    ) {
+        pressHome()
+        startActivityAndWait()
+    }
+}</code></pre>
+              <h3>App Startup Optimization</h3>
+              <ul>
+                <li><strong>Baseline Profiles</strong> — provide a <code>baseline-prof.txt</code> file that guides ART to AOT-compile your hot code paths. Can reduce cold start by 30–40%.</li>
+                <li><strong>Lazy initialization</strong> — defer anything not needed on the first frame. Use <code>App Startup</code> library to sequence initializers.</li>
+                <li><strong>Avoid heavy work on the main thread</strong> — database reads, SharedPreferences access, and network calls must all move off the main thread.</li>
+              </ul>
+              <h3>Eliminating Jank (Dropped Frames)</h3>
+              <p>
+                The Android Profiler's CPU view and the Systrace tool reveal exactly where frames drop. Common causes:
+              </p>
+              <ul>
+                <li>Layout inflation during scrolling — use <code>RecyclerView</code> prefetching or Compose's <code>LazyColumn</code> with stable keys.</li>
+                <li>Large bitmaps decoded on the main thread — use Coil or Glide which decode off-thread by default.</li>
+                <li>Expensive <code>onDraw()</code> implementations — avoid object allocation inside draw calls.</li>
+                <li>Nested <code>ConstraintLayout</code> or deep view hierarchies — flatten with <code>ConstraintLayout</code> or migrate to Compose.</li>
+              </ul>
+              <h3>Memory Optimization</h3>
+              <ul>
+                <li>Use the <strong>Memory Profiler</strong> to spot allocation spikes and leaks. Look for retained objects in the heap dump.</li>
+                <li>Avoid static references to Context or Views — they prevent garbage collection.</li>
+                <li>Use <code>WeakReference</code> only when strictly necessary; prefer lifecycle-aware components instead.</li>
+              </ul>
+              <h3>Network and Battery</h3>
+              <ul>
+                <li>Batch network requests and use caching (OkHttp cache or Room) to avoid redundant calls.</li>
+                <li>Respect the system's battery optimization mode — check <code>PowerManager.isPowerSaveMode()</code> and reduce background work accordingly.</li>
+                <li>Use WorkManager constraints (<code>requiresCharging</code>, <code>requiresNetworkType</code>) to schedule expensive work intelligently.</li>
+              </ul>
+              <h3>Key Tools</h3>
+              <ul>
+                <li><strong>Android Studio Profiler</strong> — CPU, memory, network, and energy in one place.</li>
+                <li><strong>Perfetto</strong> — detailed system-level traces.</li>
+                <li><strong>Macrobenchmark</strong> — reliable startup and scroll benchmarks.</li>
+                <li><strong>LeakCanary</strong> — automatic memory leak detection in debug builds.</li>
+              </ul>
+            </div>
+            <footer class="entry-meta">
+              By android-apps
+              <span class="sep"> | </span>
+              <span class="cat-links">Posted in <a href="/android-development-tutorial" rel="category tag">Android Development</a></span>
+              <span class="sep"> | </span>
+              <span class="tag-links">Tagged <a href="/android-development-tutorial">Android Development</a>, <a href="/android-programming">Android Performance</a></span>
+            </footer>
+          </article>
+        </div>
+      </div>
+      <div id="secondary-main-anchor">
+        <div id="secondary" class="widget-area" role="complementary">
+          <aside id="text-7" class="widget widget_text">
+            <h1 class="widget-title">Stay Connected</h1>
+            <div class="textwidget">
+              <p>
+                <a href="https://www.facebook.com/pages/Android-App-Marketcom/319713864739704" target="_blank" rel="noopener noreferrer">Facebook</a>
+                &nbsp;|&nbsp;
+                <a href="https://twitter.com/AndroidAppMarkt" target="_blank" rel="noopener noreferrer">Twitter @AndroidAppMarkt</a>
+              </p>
+            </div>
+          </aside>
+          <aside id="search-2" class="widget widget_search">
+            <form method="get" id="searchform">
+              <label for="s" class="assistive-text">Search</label>
+              <input type="text" class="field" name="s" id="s" placeholder="Search" />
+              <input type="submit" class="submit" name="submit" id="searchsubmit" value="Search" disabled />
+            </form>
+          </aside>
+          <aside id="text-11" class="widget widget_text">
+            <div class="textwidget">
+              <a title="Web Statistics"><img alt="Web Statistics" src="/static/images/badge.gif" border="0" /></a>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+    <footer id="colophon" role="contentinfo">
+      <div id="site-generator">
+        <a href="http://wordpress.org/" title="Semantic Personal Publishing Platform" rel="generator">Proudly powered by WordPress</a>
+        <span class="sep"> | </span>
+        Theme: iTheme2 by <a href="http://themify.me/" rel="designer">Themify</a>.
+      </div>
+    </footer>
+  </div>
+  <script src="/static/js/crawlarc-mobile.js" defer></script>
+</body>
+</html>
