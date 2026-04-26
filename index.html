@@ -17,12 +17,11 @@
       }
     </style>
     <style type="text/css">
-      .crawlarc-pager{clear:both;margin:20px 0 8px;background:none;border:none;box-shadow:none;padding:0;}
-      .crawlarc-pager__row{display:flex;align-items:center;justify-content:space-between;}
-      .crawlarc-pager__btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;font-size:13px;font-weight:600;text-decoration:none !important;color:#222 !important;background:#fff;border:1.5px solid #d0d5db;border-radius:6px;transition:background .15s,border-color .15s,box-shadow .15s;cursor:pointer;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.07);}
-      a.crawlarc-pager__btn:hover,a.crawlarc-pager__btn:focus{background:#ebebeb;border-color:#bbb;box-shadow:none;color:#222 !important;outline:none;}
-      .crawlarc-pager__btn--disabled{color:#b0bac5 !important;background:#f5f6f8;border-color:#dde2ea;border-style:dashed;box-shadow:none;cursor:not-allowed;}
-      .crawlarc-pager__icon{width:14px;height:14px;flex-shrink:0;}
+      nav.crawlarc-pager{clear:both;margin:20px 0 8px;background:none;border:none;box-shadow:none;padding:0;}
+      nav.crawlarc-pager .crawlarc-pager__row{display:flex !important;align-items:center !important;justify-content:space-between !important;float:none !important;}
+      nav.crawlarc-pager .crawlarc-pager__btn{display:inline-flex !important;align-items:center !important;gap:5px;padding:7px 14px !important;font-size:13px !important;font-weight:600 !important;text-decoration:none !important;color:#222 !important;background:#fff !important;border:1.5px solid #d0d5db !important;border-radius:6px !important;cursor:pointer;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.07) !important;float:none !important;width:auto !important;}
+      nav.crawlarc-pager a.crawlarc-pager__btn:hover,nav.crawlarc-pager a.crawlarc-pager__btn:focus{background:#ebebeb !important;border-color:#bbb !important;box-shadow:none !important;color:#222 !important;outline:none;}
+      nav.crawlarc-pager .crawlarc-pager__btn--disabled{color:#b0bac5 !important;background:#f5f6f8 !important;border-color:#dde2ea !important;border-style:dashed !important;box-shadow:none !important;cursor:not-allowed;}
     </style>
 
     <style type="text/css">
@@ -551,12 +550,12 @@
             <nav class="crawlarc-pager" aria-label="Page navigation">
               <div class="crawlarc-pager__row">
                 <span class="crawlarc-pager__btn crawlarc-pager__btn--disabled" aria-disabled="true">
-                  <svg class="crawlarc-pager__icon" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M12 5l-5 5 5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M12 5l-5 5 5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                   Newer posts
                 </span>
                 <a class="crawlarc-pager__btn" href="/index-page-2.html" rel="next">
                   Older posts
-                  <svg class="crawlarc-pager__icon" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M8 5l5 5-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M8 5l5 5-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </a>
               </div>
             </nav>
