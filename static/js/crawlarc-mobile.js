@@ -1,4 +1,38 @@
 (function () {
+  function initGoogleTagManager() {
+    if (window.__crawlarcGtmInstalled) return;
+    window.__crawlarcGtmInstalled = true;
+
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
+
+    var firstScript = document.getElementsByTagName("script")[0];
+    var gtmScript = document.createElement("script");
+    gtmScript.async = true;
+    gtmScript.src =
+      "https://www.googletagmanager.com/gtm.js?id=GTM-NHRV324P";
+
+    if (firstScript && firstScript.parentNode) {
+      firstScript.parentNode.insertBefore(gtmScript, firstScript);
+    } else if (document.head) {
+      document.head.appendChild(gtmScript);
+    }
+
+    if (document.body && !document.getElementById("gtm-noscript-iframe")) {
+      var noscript = document.createElement("noscript");
+      var iframe = document.createElement("iframe");
+      iframe.id = "gtm-noscript-iframe";
+      iframe.src =
+        "https://www.googletagmanager.com/ns.html?id=GTM-NHRV324P";
+      iframe.height = "0";
+      iframe.width = "0";
+      iframe.style.display = "none";
+      iframe.style.visibility = "hidden";
+      noscript.appendChild(iframe);
+      document.body.insertBefore(noscript, document.body.firstChild);
+    }
+  }
+
   function escapeAttr(s) {
     return String(s)
       .replace(/&/g, "&amp;")
@@ -282,6 +316,9 @@
   }
 
   function boot() {
+    try {
+      initGoogleTagManager();
+    } catch (e) {}
     try {
       wireCommentSuccessToast();
     } catch (e) {}
