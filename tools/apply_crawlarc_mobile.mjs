@@ -66,7 +66,7 @@ const VIEWPORT = `    <meta
       content="width=device-width, initial-scale=1, viewport-fit=cover"
     />`;
 
-const SCRIPT = `    <script src="/static/js/crawlarc-mobile.js" defer></script>
+const SCRIPT = `    <script src="/static/js/crawlarc-mobile.js?v=1.1.0" defer></script>
 `;
 
 function* walkHtml(dir) {

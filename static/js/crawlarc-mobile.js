@@ -1,4 +1,38 @@
 (function () {
+  function initGoogleTagManager() {
+    if (window.__crawlarcGtmInstalled) return;
+    window.__crawlarcGtmInstalled = true;
+
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
+
+    var firstScript = document.getElementsByTagName("script")[0];
+    var gtmScript = document.createElement("script");
+    gtmScript.async = true;
+    gtmScript.src =
+      "https://www.googletagmanager.com/gtm.js?id=GTM-NHRV324P";
+
+    if (firstScript && firstScript.parentNode) {
+      firstScript.parentNode.insertBefore(gtmScript, firstScript);
+    } else if (document.head) {
+      document.head.appendChild(gtmScript);
+    }
+
+    if (document.body && !document.getElementById("gtm-noscript-iframe")) {
+      var noscript = document.createElement("noscript");
+      var iframe = document.createElement("iframe");
+      iframe.id = "gtm-noscript-iframe";
+      iframe.src =
+        "https://www.googletagmanager.com/ns.html?id=GTM-NHRV324P";
+      iframe.height = "0";
+      iframe.width = "0";
+      iframe.style.display = "none";
+      iframe.style.visibility = "hidden";
+      noscript.appendChild(iframe);
+      document.body.insertBefore(noscript, document.body.firstChild);
+    }
+  }
+
   function escapeAttr(s) {
     return String(s)
       .replace(/&/g, "&amp;")
@@ -510,7 +544,36 @@
     }
   });
 
+  function highlightActiveNav() {
+    var path = window.location.pathname.replace(/\/$/, '') || '/';
+    var metaEl = document.querySelector('meta[name="nav-section"]');
+    var hint = metaEl ? metaEl.getAttribute('content').trim() : '';
+    var items = document.querySelectorAll('#menu-home > li');
+    for (var i = 0; i < items.length; i++) {
+      var li = items[i];
+      var a = li.querySelector('a[href]');
+      if (!a) continue;
+      var href = (a.getAttribute('href') || '').replace(/\/$/, '') || '/';
+      var active = false;
+      if (hint) {
+        // Page has declared its section via <meta name="nav-section">
+        active = href.indexOf(hint) !== -1;
+      } else {
+        if (href === path) {
+          active = true;
+        } else if (href.indexOf('.html') === -1 && href.length > 1) {
+          // Directory-style href (e.g. /android-development-tutorial)
+          active = path.indexOf(href) === 0;
+        }
+      }
+      if (active) li.classList.add('current-menu-item');
+    }
+  }
+
   function boot() {
+    try {
+      initGoogleTagManager();
+    } catch (e) {}
     try {
       wireCommentSuccessToast();
     } catch (e) {}
@@ -523,21 +586,8 @@
     try {
       syncLayout();
     } catch (e) {}
-    // Run after layout moves nav/secondary into drawer.
-    // Some pages/styles mutate the nav after parse; re-run a few times to ensure it sticks.
     try {
-      var run = function () {
-        try {
-          setActiveMenuItem();
-        } catch (e) {}
-      };
-      window.setTimeout(run, 0);
-      window.setTimeout(run, 50);
-      window.setTimeout(run, 250);
-      window.setTimeout(run, 1000);
-    } catch (e) {}
-    try {
-      wireMenuActiveOnClick();
+      highlightActiveNav();
     } catch (e) {}
   }
   if (document.readyState === "loading")

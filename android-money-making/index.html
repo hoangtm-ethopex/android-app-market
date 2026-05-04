@@ -1,5 +1,7 @@
-﻿<html style="--wm-toolbar-height: 383px">
+<html style="--wm-toolbar-height: 383px">
   <head>
+    <link rel="icon" type="image/png" href="/static/images/favicon.png" />
+
     <link rel="stylesheet" type="text/css" href="/static/css/all.css" />
     <meta charset="UTF-8" />
     <meta
@@ -35,7 +37,12 @@
       }
     </style>
       <link rel="stylesheet" href="/static/css/crawlarc-mobile.css" />
-</head>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3553662353237662"
+       crossorigin="anonymous"></script>
+<style type="text/css">#colophon{display:block !important;text-align:center;padding:16px 10px;font-size:13px;color:#aaa;}</style>
+  <style type="text/css">#masthead{position:relative;}.masthead-logo-link{position:absolute;top:0;left:0;width:100%;height:130px;display:block;z-index:2;cursor:pointer;}.drawer-hamburger{position:absolute;top:10px;right:10px;z-index:10;}</style>
+      <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />
+  </head>
 
   <body
     class="archive category category-android-apps category-1 custom-background indexed single-author"
@@ -75,6 +82,7 @@
 
     <div id="page" class="hfeed">
       <header id="masthead" role="banner">
+        <a href="/index.html" class="masthead-logo-link" aria-label="Home — Android-App-Market.com"></a>
                 <button
           type="button"
           class="drawer-hamburger"
@@ -211,6 +219,12 @@
                 <a href="/android-money-making" style="cursor: pointer"
                   >Make Money</a
                 >
+              </li>
+              <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-archive">
+                <a href="/archive-2025.html" style="cursor: pointer">Archive 2025</a>
+              </li>
+              <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-archive">
+                <a href="/archive-2026.html" style="cursor: pointer">Archive 2026</a>
               </li>
               <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-privacy">
                 <a href="/privacy-policy.html" style="cursor: pointer">Privacy</a>
@@ -784,18 +798,88 @@
 
       <footer id="colophon" role="contentinfo">
         <div id="site-generator">
-          <a
-            href="http://wordpress.org/"
-            title="Semantic Personal Publishing Platform"
-            rel="generator"
-            >Proudly powered by WordPress</a
-          >
-          <span class="sep"> | </span>
-          Theme: iTheme2 by
-          <a href="http://themify.me/" rel="designer">Themify</a>.
+          &copy; 2024 BrosNex Limited. All rights reserved.
         </div>
       </footer>
     </div>
-      <script src="/static/js/crawlarc-mobile.js" defer></script>
-  </body>
+      <script src="/static/js/crawlarc-mobile.js?v=1.1.0" defer></script>
+  
+<script data-crawlarc-inline-comment-toast="1">
+(function(){
+  function toast(msg, kind){
+    var el=document.getElementById('crawlarc-inline-toast');
+    if(!el){
+      el=document.createElement('div');
+      el.id='crawlarc-inline-toast';
+      el.setAttribute('role','status');
+      el.setAttribute('aria-live','polite');
+      el.style.cssText='position:fixed;left:50%;top:16px;transform:translateX(-50%) translateY(-14px);z-index:13000;padding:12px 16px;border-radius:12px;background:rgba(18,23,34,.92);color:#fff;font:650 15px/1.25 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;box-shadow:0 10px 26px rgba(0,0,0,.28);opacity:0;pointer-events:none;transition:opacity 180ms ease,transform 180ms ease;max-width:min(92vw,520px);text-align:center;';
+      document.body.appendChild(el);
+    }
+    el.textContent=msg;
+    if(kind==='error') el.style.background='rgba(160, 30, 30, .92)';
+    else el.style.background='rgba(18,23,34,.92)';
+    el.style.opacity='0';
+    el.style.transform='translateX(-50%) translateY(-14px)';
+    void el.offsetWidth;
+    el.style.opacity='1';
+    el.style.transform='translateX(-50%) translateY(0)';
+    clearTimeout(toast._t);
+    toast._t=setTimeout(function(){el.style.opacity='0';el.style.transform='translateX(-50%) translateY(-14px)';},1800);
+  }
+
+  function markError(el){
+    if(!el) return;
+    el.style.borderColor='#d93a3a';
+    el.style.boxShadow='0 0 0 3px rgba(217,58,58,.18)';
+    el.setAttribute('aria-invalid','true');
+  }
+  function clearError(el){
+    if(!el) return;
+    el.style.borderColor='';
+    el.style.boxShadow='';
+    el.removeAttribute('aria-invalid');
+  }
+
+  function validate(form){
+    var author=form.querySelector('#author');
+    var email=form.querySelector('#email');
+    var comment=form.querySelector('#comment');
+    clearError(author); clearError(email); clearError(comment);
+    var missing=[];
+    var nameVal=author?String(author.value||'').trim():'';
+    var emailVal=email?String(email.value||'').trim():'';
+    var commentVal=comment?String(comment.value||'').trim():'';
+    if(!nameVal){missing.push('Name'); markError(author);} 
+    if(!emailVal){missing.push('Email'); markError(email);} else {
+      var ok=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal);
+      if(!ok){missing.push('a valid Email'); markError(email);} 
+    }
+    if(!commentVal){missing.push('Comment'); markError(comment);} 
+    if(missing.length){toast('Please enter: '+missing.join(', '),'error'); return false;}
+    return true;
+  }
+
+  function wire(form){
+    if(form.getAttribute('data-crawlarc-wired')==='1') return;
+    form.setAttribute('data-crawlarc-wired','1');
+    var btn=form.querySelector('#submit, input[type="submit"]');
+    if(btn && btn.hasAttribute('disabled')) btn.removeAttribute('disabled');
+    form.addEventListener('submit',function(e){e.preventDefault(); if(!validate(form)) return; toast('Sent successfully');});
+    form.addEventListener('click',function(e){
+      var t=e.target && e.target.closest ? e.target.closest('#submit, input[type="submit"]') : null;
+      if(t){e.preventDefault(); if(!validate(form)) return; toast('Sent successfully');}
+    });
+  }
+
+  function boot(){
+    var forms=document.querySelectorAll('form#commentform, form.comment-form');
+    for(var i=0;i<forms.length;i++) wire(forms[i]);
+  }
+
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot);
+  else boot();
+})();
+</script>
+</body>
 </html>
