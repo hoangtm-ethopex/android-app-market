@@ -61,6 +61,95 @@
     }
   }
 
+  function fixArchivedImages() {
+    var placeholder = "/static/images/image-placeholder.svg";
+
+    function extractOriginalUrl(archivedUrl) {
+      // Typical: https://web.archive.org/web/<timestamp>/<original>
+      var m = String(archivedUrl || "").match(
+        /^https?:\/\/web\.archive\.org\/web\/\d+\/(https?:\/\/.+)$/i
+      );
+      return m && m[1] ? m[1] : "";
+    }
+
+    function toLocalPathIfPossible(originalUrl) {
+      try {
+        var u = new URL(originalUrl);
+        // Most pages in this archive are served from repo root, so path is the best guess.
+        return u.pathname || "";
+      } catch (e) {
+        return "";
+      }
+    }
+
+    function setFallback(img) {
+      if (!img || img.getAttribute("data-crawlarc-img-fallback") === "1") return;
+      img.setAttribute("data-crawlarc-img-fallback", "1");
+      img.classList.add("crawlarc-img-fallback");
+      img.src = placeholder;
+      img.removeAttribute("srcset");
+    }
+
+    function tryRewrite(img) {
+      if (!img || img.getAttribute("data-crawlarc-img-checked") === "1") return;
+      img.setAttribute("data-crawlarc-img-checked", "1");
+
+      var src = img.getAttribute("src") || "";
+      if (!src) return;
+
+      // If it's a Wayback URL, replace it immediately (bulk fix).
+      // This avoids broken remote fetches and ensures a consistent local UI.
+      if (/^https?:\/\/web\.archive\.org\/web\//i.test(src)) {
+        var original = extractOriginalUrl(src) || src;
+        img.setAttribute("data-crawlarc-img-original", original);
+        img.removeAttribute("srcset");
+        img.src = placeholder;
+        img.classList.add("crawlarc-img-fallback");
+        return;
+      }
+
+      // If it fails to load, swap to placeholder.
+      img.addEventListener(
+        "error",
+        function () {
+          setFallback(img);
+        },
+        { once: true }
+      );
+    }
+
+    // Existing images
+    var imgs = document.querySelectorAll("img");
+    for (var i = 0; i < imgs.length; i++) tryRewrite(imgs[i]);
+
+    // Future images (some pages inject content)
+    if (window.MutationObserver) {
+      try {
+        var mo = new MutationObserver(function (mutations) {
+          for (var k = 0; k < mutations.length; k++) {
+            var m = mutations[k];
+            if (!m.addedNodes) continue;
+            for (var n = 0; n < m.addedNodes.length; n++) {
+              var node = m.addedNodes[n];
+              if (!node || node.nodeType !== 1) continue;
+              if (node.tagName === "IMG") tryRewrite(node);
+              var nested = node.querySelectorAll
+                ? node.querySelectorAll("img")
+                : null;
+              if (nested && nested.length) {
+                for (var z = 0; z < nested.length; z++) tryRewrite(nested[z]);
+              }
+            }
+          }
+        });
+        mo.observe(document.documentElement || document.body, {
+          childList: true,
+          subtree: true,
+        });
+      } catch (e) {}
+    }
+  }
+
   function ensureToastNode() {
     var existing = document.getElementById("crawlarc-toast");
     if (existing) return existing;
@@ -181,6 +270,172 @@
     }
   }
 
+  function setActiveMenuItem() {
+    var nav = document.getElementById("access");
+    if (!nav) return;
+
+    var path = (window.location && window.location.pathname) || "";
+    try {
+      path = decodeURIComponent(path);
+    } catch (e) {}
+
+    function norm(p) {
+      if (!p) return "/";
+      // strip query/hash if passed in
+      p = String(p).split("#")[0].split("?")[0];
+      // collapse duplicate slashes
+      p = p.replace(/\/{2,}/g, "/");
+      // treat /foo/index.html as /foo/
+      p = p.replace(/\/index\.html$/i, "/");
+      // treat /index.html as /
+      p = p.replace(/^\/index\.html$/i, "/");
+      // keep as-is (do not force trailing slash); handle variants below
+      return p;
+    }
+
+    function variants(p) {
+      p = norm(p);
+      var out = {};
+      function add(x) {
+        if (x == null) return;
+        x = String(x);
+        if (!x) return;
+        out[x] = true;
+      }
+      add(p);
+      // with/without trailing slash
+      if (p !== "/" && /\/$/.test(p)) add(p.replace(/\/+$/, ""));
+      if (p !== "/" && !/\/$/.test(p) && !/\.html$/i.test(p)) add(p + "/");
+      // /foo/index.html forms
+      if (p !== "/" && /\/$/.test(p)) add(p.replace(/\/+$/, "") + "/index.html");
+      if (p !== "/" && !/\/$/.test(p) && !/\.html$/i.test(p)) add(p + "/index.html");
+      return out;
+    }
+
+    var cur = norm(path);
+    var curVars = variants(cur);
+    var links = nav.querySelectorAll("a[href]");
+    for (var i = 0; i < links.length; i++) {
+      links[i].classList.remove("crawlarc-menu-active");
+      var li = links[i].closest("li");
+      if (li) {
+        li.classList.remove("crawlarc-menu-active");
+        // Remove theme active classes so we don't end up with multiple "current" items
+        li.classList.remove("current-menu-item");
+        li.classList.remove("current_page_item");
+      }
+      var details = links[i].closest && links[i].closest("details");
+      if (details) details.classList.remove("crawlarc-menu-active");
+    }
+
+    function stripLeadingSlash(p) {
+      return String(p || "").replace(/^\/+/, "");
+    }
+
+    var bestLink = null;
+    var bestLen = -1;
+    for (var j = 0; j < links.length; j++) {
+      var a = links[j];
+      var href = a.getAttribute("href");
+      if (!href) continue;
+      if (href.indexOf("http://") === 0 || href.indexOf("https://") === 0)
+        continue;
+      if (href.indexOf("mailto:") === 0 || href.indexOf("tel:") === 0)
+        continue;
+
+      var abs = "";
+      try {
+        abs = new URL(href, window.location.href).pathname;
+      } catch (e) {
+        continue;
+      }
+      var target = norm(abs);
+      var targetVars = variants(target);
+
+      // exact match across variants (handles trailing slash differences)
+      if (curVars[target] || targetVars[cur]) {
+        bestLink = a;
+        bestLen = target.length;
+        break;
+      }
+      // fallback: longest prefix match across variants (useful for section pages)
+      if (
+        target !== "/" &&
+        (String(cur).indexOf(target) === 0 ||
+          (targetVars[String(cur)] ? true : false)) &&
+        target.length > bestLen
+      ) {
+        bestLink = a;
+        bestLen = target.length;
+      }
+
+      // host-in-subfolder fallback: compare by suffix
+      var curNoLead = stripLeadingSlash(cur);
+      var targetNoLead = stripLeadingSlash(target);
+      if (
+        target !== "/" &&
+        (curNoLead === targetNoLead ||
+          curNoLead.endsWith(targetNoLead) ||
+          targetNoLead.endsWith(curNoLead)) &&
+        targetNoLead.length > bestLen
+      ) {
+        bestLink = a;
+        bestLen = targetNoLead.length;
+      }
+    }
+
+    if (bestLink) {
+      bestLink.classList.add("crawlarc-menu-active");
+      var bestLi = bestLink.closest("li");
+      if (bestLi) {
+        bestLi.classList.add("crawlarc-menu-active");
+        // Also apply the theme's built-in "current" styling (defined in static/css/all.css)
+        bestLi.classList.add("current-menu-item");
+        bestLi.classList.add("current_page_item");
+      }
+
+      // If the active link is inside a <details> (mobile accordion),
+      // mark and open it so the active item is visible.
+      var bestDetails = bestLink.closest && bestLink.closest("details");
+      if (bestDetails) {
+        bestDetails.classList.add("crawlarc-menu-active");
+        try {
+          bestDetails.open = true;
+        } catch (e) {}
+      }
+    }
+  }
+
+  function wireMenuActiveOnClick() {
+    var nav = document.getElementById("access");
+    if (!nav) return;
+    if (nav.getAttribute("data-crawlarc-active-wire") === "1") return;
+    nav.setAttribute("data-crawlarc-active-wire", "1");
+
+    nav.addEventListener(
+      "click",
+      function (e) {
+        var a = e.target && e.target.closest && e.target.closest("a[href]");
+        if (!a) return;
+        var href = a.getAttribute("href");
+        if (!href || /^(https?:|mailto:|tel:)/i.test(href)) return;
+
+        // Apply immediately so it feels "selected" even before navigation
+        try {
+          setActiveMenuItem();
+        } catch (err) {}
+
+        var li = a.closest && a.closest("li");
+        if (li) {
+          li.classList.add("crawlarc-menu-active");
+          li.classList.add("current-menu-item");
+          li.classList.add("current_page_item");
+        }
+      },
+      true
+    );
+  }
+
   var mq = window.matchMedia("(max-width: 768px)");
   var inner = document.getElementById("off-canvas-inner");
   var navAnchor = document.getElementById("masthead-nav-anchor");
@@ -263,10 +518,43 @@
       enhanceBottomShareBoxes();
     } catch (e) {}
     try {
+      fixArchivedImages();
+    } catch (e) {}
+    try {
       syncLayout();
+    } catch (e) {}
+    // Run after layout moves nav/secondary into drawer.
+    // Some pages/styles mutate the nav after parse; re-run a few times to ensure it sticks.
+    try {
+      var run = function () {
+        try {
+          setActiveMenuItem();
+        } catch (e) {}
+      };
+      window.setTimeout(run, 0);
+      window.setTimeout(run, 50);
+      window.setTimeout(run, 250);
+      window.setTimeout(run, 1000);
+    } catch (e) {}
+    try {
+      wireMenuActiveOnClick();
     } catch (e) {}
   }
   if (document.readyState === "loading")
     document.addEventListener("DOMContentLoaded", boot);
   else boot();
+
+  // Handle BFCache restore / SPA-like navigation
+  window.addEventListener &&
+    window.addEventListener("pageshow", function () {
+      try {
+        setActiveMenuItem();
+      } catch (e) {}
+    });
+  window.addEventListener &&
+    window.addEventListener("popstate", function () {
+      try {
+        setActiveMenuItem();
+      } catch (e) {}
+    });
 })();

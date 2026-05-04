@@ -39,6 +39,75 @@
   outline: none !important;
 }
 
+/* Keep "hover" look after clicking (focused) */
+/* Target the real WP-like structure: #access ... .menu-home-container > ul.menu */
+#access ul.menu > li:focus-within {
+  background: #474747;
+  background: -webkit-gradient(
+    linear,
+    left top,
+    left bottom,
+    from(#282828),
+    to(#4f4f4f)
+  );
+  background: -moz-linear-gradient(top, #282828, #4f4f4f);
+  background: linear-gradient(-90deg, #282828, #4f4f4f);
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+}
+#access ul.menu > li.crawlarc-menu-active {
+  background: #474747 !important;
+  background: -webkit-gradient(
+    linear,
+    left top,
+    left bottom,
+    from(#282828),
+    to(#4f4f4f)
+  ) !important;
+  background: -moz-linear-gradient(top, #282828, #4f4f4f) !important;
+  background: linear-gradient(-90deg, #282828, #4f4f4f) !important;
+  -webkit-box-shadow: none !important;
+  -moz-box-shadow: none !important;
+  box-shadow: none !important;
+}
+#access ul.menu > li.crawlarc-menu-active > a {
+  background: transparent !important;
+  /* Some themes paint background on <a>, so ensure it's visibly "selected" */
+  background: -webkit-gradient(
+    linear,
+    left top,
+    left bottom,
+    from(#282828),
+    to(#4f4f4f)
+  ) !important;
+  background: -moz-linear-gradient(top, #282828, #4f4f4f) !important;
+  background: linear-gradient(-90deg, #282828, #4f4f4f) !important;
+  color: #fff !important;
+}
+
+/* Active state for nested menu items (sub-menus) */
+#access li.crawlarc-menu-active > a {
+  color: #fff !important;
+}
+#access ul.sub-menu li.crawlarc-menu-active {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+#access ul.sub-menu li.crawlarc-menu-active > a {
+  background: transparent !important;
+  color: #fff !important;
+}
+
+/* If a <details> section contains the active link, highlight its summary */
+#access details.crawlarc-menu-active > summary {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+#access a:focus,
+#access a:active {
+  text-decoration: none;
+  outline: none;
+}
+
 @media screen and (min-width: 769px) {
         .nav-android-news--mobile {
           display: none !important;

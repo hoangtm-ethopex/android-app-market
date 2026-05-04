@@ -107,8 +107,8 @@ ul{margin:0 0 1.5em 3em;}
 ul{list-style:square;}
 ul ul{margin-bottom:0;}
 strong{font-weight:bold;}
-input{font-size:100%;margin:0;vertical-align:baseline;*vertical-align:middle;}
-input{line-height:normal;*overflow:visible;}
+input{font-size:100%;margin:0;vertical-align:baseline;}
+input{line-height:normal;}
 input[type="submit"]{cursor:pointer;-webkit-appearance:button;}
 input[type=text]{background:#f0f0f0;border:1px solid #ccc;border-radius:5px;color:#000;padding:5px 7px;font-size:17px;}
 input[type=text]:focus{background:#fff;border-color:#666;color:#000;}
@@ -144,6 +144,10 @@ a:focus,a:active,a:hover{text-decoration:underline;}
 #access li.menu-item-home a:hover{background-position:-41px center;}
 #access li.menu-item-home.current_page_item,#access li.menu-item-home.current-menu-item{background:none;border-right:solid 1px #575757;-webkit-box-shadow:1px 0 0 rgba(255,255,255,.1), inset -1px 0 0 rgba(255,255,255,.1);-moz-box-shadow:1px 0 0 rgba(255,255,255,.1), inset -1px 0 0 rgba(255,255,255,.1);box-shadow:1px 0 0 rgba(255,255,255,.1), inset -1px 0 0 rgba(255,255,255,.1);}
 #access li.menu-item-home.current_page_item:hover,#access li.menu-item-home.current-menu-item:hover{background:#474747;background:-webkit-gradient(linear, left top, left bottom, from(#282828), to(#4f4f4f));background:-moz-linear-gradient(top, #282828, #4f4f4f);background:linear-gradient(-90deg, #282828, #4f4f4f);-webkit-box-shadow:none;-moz-box-shadow:none;box-shadow:none;}
+#access li.crawlarc-menu-active{border-left:solid 1px #000;border-right:solid 1px #000;background:#474747;background:-webkit-gradient(linear, left top, left bottom, from(#282828), to(#4f4f4f));background:-moz-linear-gradient(top,  #282828,  #4f4f4f);background:linear-gradient(-90deg, #282828, #4f4f4f);-webkit-box-shadow:inset 0 2px 8px rgba(0,0,0,.8);-moz-box-shadow:inset 0 2px 8px rgba(0,0,0,.8);box-shadow:inset 0 2px 8px rgba(0,0,0,.8);}
+#access ul ul li.crawlarc-menu-active{background:#f3f3f3;}
+#access ul ul li.crawlarc-menu-active > a{color:#000;}
+#content img.crawlarc-img-fallback{max-width:100%;height:auto;display:block;}
 #content{background:#fff;-webkit-border-radius:8px;-moz-border-radius:8px;border-radius:8px;-webkit-box-shadow:0 1px 3px rgba(0,0,0,.4);-moz-box-shadow:0 1px 3px rgba(0,0,0,.4);box-shadow:0 1px 3px rgba(0,0,0,.4);margin-bottom:10px;padding:35px;}
 .hentry{margin-bottom:45px;position:relative;}
 .entry-title{font:bold 22px/1.2 "Lucida Grande", Arial, "Lucida Sans Unicode", sans-serif;font-size:2.2rem;margin:0 56px 5px 0;padding:5px 36px 0 0;clear:none;}
