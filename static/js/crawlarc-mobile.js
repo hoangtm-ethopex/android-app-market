@@ -313,6 +313,40 @@
       path = decodeURIComponent(path);
     } catch (e) {}
 
+    var isFile = /^file:/i.test(window.location.protocol || "");
+
+    /** file:// resolves /foo wrongly against a local path; derive site-relative path and compare href strings. */
+    function fileUrlSitePath() {
+      var raw = path.replace(/\\/g, "/");
+      var parts = raw.split("/").filter(function (x) {
+        return x && x !== "." && x !== "..";
+      });
+      var cut = -1;
+      for (var i = 0; i < parts.length; i++) {
+        if (/android-app-market/i.test(parts[i])) {
+          cut = i;
+          break;
+        }
+      }
+      var tail =
+        cut >= 0 ? parts.slice(cut + 1) : parts.length ? [parts[parts.length - 1]] : [];
+      if (!tail.length) return "/";
+      return norm("/" + tail.join("/"));
+    }
+
+    function hrefToNavPath(href) {
+      if (!href) return "";
+      if (href.indexOf("http://") === 0 || href.indexOf("https://") === 0)
+        return "";
+      if (href.charAt(0) !== "/") return "";
+      if (isFile) return norm(href);
+      try {
+        return norm(new URL(href, window.location.href).pathname);
+      } catch (e) {
+        return norm(href);
+      }
+    }
+
     function norm(p) {
       if (!p) return "/";
       // strip query/hash if passed in
@@ -346,8 +380,15 @@
       return out;
     }
 
-    var cur = norm(path);
-    var curVars = variants(cur);
+    var topMenuLis = nav.querySelectorAll("#menu-home > li");
+    for (var ti = 0; ti < topMenuLis.length; ti++) {
+      topMenuLis[ti].classList.remove("crawlarc-nav-parent-active");
+    }
+    var mobDetails = nav.querySelectorAll(".nav-android-news--mobile");
+    for (var pd = 0; pd < mobDetails.length; pd++) {
+      mobDetails[pd].classList.remove("crawlarc-nav-parent-active");
+    }
+
     var links = nav.querySelectorAll("a[href]");
     for (var i = 0; i < links.length; i++) {
       links[i].classList.remove("crawlarc-menu-active");
@@ -366,56 +407,163 @@
       return String(p || "").replace(/^\/+/, "");
     }
 
-    var bestLink = null;
-    var bestLen = -1;
-    for (var j = 0; j < links.length; j++) {
-      var a = links[j];
-      var href = a.getAttribute("href");
-      if (!href) continue;
-      if (href.indexOf("http://") === 0 || href.indexOf("https://") === 0)
-        continue;
-      if (href.indexOf("mailto:") === 0 || href.indexOf("tel:") === 0)
-        continue;
+    /**
+     * Submenu Android News (Phones, Tablets, …): khớp URL/category → đậm nhãn cha.
+     */
+    function matchAndroidNewsSubmenu(curResolved, catPathNorm) {
+      var root = nav.querySelector("#menu-home > li.menu-item-has-children");
+      if (!root) return null;
+      var subAnchors = root.querySelectorAll("ul.sub-menu a[href]");
+      var bestA = null;
+      var bestScore = 0;
 
-      var abs = "";
-      try {
-        abs = new URL(href, window.location.href).pathname;
-      } catch (e) {
-        continue;
-      }
-      var target = norm(abs);
-      var targetVars = variants(target);
+      for (var i = 0; i < subAnchors.length; i++) {
+        var ax = subAnchors[i];
+        var href = ax.getAttribute("href");
+        if (!href) continue;
+        if (href.indexOf("http://") === 0 || href.indexOf("https://") === 0)
+          continue;
+        var target = hrefToNavPath(href);
+        if (!target) continue;
 
-      // exact match across variants (handles trailing slash differences)
-      if (curVars[target] || targetVars[cur]) {
-        bestLink = a;
-        bestLen = target.length;
-        break;
-      }
-      // fallback: longest prefix match across variants (useful for section pages)
-      if (
-        target !== "/" &&
-        (String(cur).indexOf(target) === 0 ||
-          (targetVars[String(cur)] ? true : false)) &&
-        target.length > bestLen
-      ) {
-        bestLink = a;
-        bestLen = target.length;
-      }
+        function scoreAgainst(curR) {
+          if (!curR || curR === "/") return 0;
+          var curVs = variants(curR);
+          var targetVs = variants(target);
 
-      // host-in-subfolder fallback: compare by suffix
-      var curNoLead = stripLeadingSlash(cur);
-      var targetNoLead = stripLeadingSlash(target);
-      if (
-        target !== "/" &&
-        (curNoLead === targetNoLead ||
-          curNoLead.endsWith(targetNoLead) ||
-          targetNoLead.endsWith(curNoLead)) &&
-        targetNoLead.length > bestLen
-      ) {
-        bestLink = a;
-        bestLen = targetNoLead.length;
+          if (curVs[target] || targetVs[curR]) return 4000 + target.length;
+
+          if (
+            target !== "/" &&
+            (String(curR).indexOf(target) === 0 ||
+              (targetVs[String(curR)] ? true : false))
+          )
+            return 2500 + target.length;
+
+          var curNoLead = stripLeadingSlash(curR);
+          var targetNoLead = stripLeadingSlash(target);
+          if (
+            target !== "/" &&
+            (curNoLead === targetNoLead ||
+              curNoLead.endsWith(targetNoLead) ||
+              targetNoLead.endsWith(curNoLead))
+          )
+            return 1500 + targetNoLead.length;
+          return 0;
+        }
+
+        var s = scoreAgainst(norm(curResolved));
+        if (catPathNorm) {
+          s = Math.max(s, scoreAgainst(norm(catPathNorm)));
+        }
+        if (s > bestScore) {
+          bestScore = s;
+          bestA = ax;
+        }
       }
+      return bestScore ? bestA : null;
+    }
+
+    function matchNavLinkToPath(curResolved) {
+      var curVs = variants(curResolved);
+      var bl = null;
+      var len = -1;
+      for (var j = 0; j < links.length; j++) {
+        var a = links[j];
+        var href = a.getAttribute("href");
+        if (!href) continue;
+        if (href.indexOf("http://") === 0 || href.indexOf("https://") === 0)
+          continue;
+        if (href.indexOf("mailto:") === 0 || href.indexOf("tel:") === 0)
+          continue;
+
+        var target = hrefToNavPath(href);
+        if (!target) continue;
+        var targetVs = variants(target);
+
+        // exact match across variants (handles trailing slash differences)
+        if (curVs[target] || targetVs[curResolved]) {
+          bl = a;
+          len = target.length;
+          break;
+        }
+        // fallback: longest prefix match across variants (useful for section pages)
+        if (
+          target !== "/" &&
+          (String(curResolved).indexOf(target) === 0 ||
+            (targetVs[String(curResolved)] ? true : false)) &&
+          target.length > len
+        ) {
+          bl = a;
+          len = target.length;
+        }
+
+        // host-in-subfolder fallback: compare by suffix
+        var curNoLead = stripLeadingSlash(curResolved);
+        var targetNoLead = stripLeadingSlash(target);
+        if (
+          target !== "/" &&
+          (curNoLead === targetNoLead ||
+            curNoLead.endsWith(targetNoLead) ||
+            targetNoLead.endsWith(curNoLead)) &&
+          targetNoLead.length > len
+        ) {
+          bl = a;
+          len = targetNoLead.length;
+        }
+      }
+      return bl;
+    }
+
+    var catHrefNormSingle = "";
+    if (
+      document.body &&
+      document.body.classList.contains("single-post")
+    ) {
+      var catA0 = document.querySelector(
+        '#primary .hentry .cat-links a[href^="/"]'
+      );
+      var catH0 = catA0 ? catA0.getAttribute("href") : "";
+      if (catH0) {
+        var cpnEarly = hrefToNavPath(catH0);
+        if (cpnEarly) catHrefNormSingle = cpnEarly;
+      }
+    }
+
+    var cur = isFile ? fileUrlSitePath() : norm(path);
+    var bestLink = matchNavLinkToPath(cur);
+
+    if (!bestLink) {
+      var metaEl = document.querySelector('meta[name="nav-section"]');
+      var hintRaw = metaEl
+        ? String(metaEl.getAttribute("content") || "").trim()
+        : "";
+      if (hintRaw) {
+        var hintNorm = "";
+        try {
+          if (/^https?:\/\//i.test(hintRaw)) {
+            hintNorm = norm(new URL(hintRaw).pathname);
+          } else {
+            hintNorm = norm(
+              hintRaw.charAt(0) === "/" ? hintRaw : "/" + hintRaw
+            );
+          }
+        } catch (e) {
+          hintNorm = "";
+        }
+        if (hintNorm) {
+          bestLink = matchNavLinkToPath(hintNorm);
+        }
+      }
+    }
+
+    if (!bestLink && catHrefNormSingle) {
+      bestLink = matchNavLinkToPath(catHrefNormSingle);
+    }
+
+    var androidNewsHit = matchAndroidNewsSubmenu(cur, catHrefNormSingle);
+    if (androidNewsHit) {
+      bestLink = androidNewsHit;
     }
 
     if (bestLink) {
@@ -428,13 +576,23 @@
         bestLi.classList.add("current_page_item");
       }
 
-      // If the active link is inside a <details> (mobile accordion),
-      // mark and open it so the active item is visible.
+      var parentSection =
+        bestLink.closest &&
+        bestLink.closest("#menu-home > li.menu-item-has-children");
+      if (parentSection) {
+        parentSection.classList.add("crawlarc-nav-parent-active");
+        var mobD = parentSection.querySelector(".nav-android-news--mobile");
+        if (mobD) {
+          mobD.classList.add("crawlarc-nav-parent-active");
+        }
+      }
+
+      // Không mở accordion — menu con ẩn sau khi đã chọn trang
       var bestDetails = bestLink.closest && bestLink.closest("details");
       if (bestDetails) {
         bestDetails.classList.add("crawlarc-menu-active");
         try {
-          bestDetails.open = true;
+          bestDetails.open = false;
         } catch (e) {}
       }
     }
@@ -454,16 +612,64 @@
         var href = a.getAttribute("href");
         if (!href || /^(https?:|mailto:|tel:)/i.test(href)) return;
 
-        // Apply immediately so it feels "selected" even before navigation
         try {
-          setActiveMenuItem();
+          var topLisClear = nav.querySelectorAll("#menu-home > li");
+          for (var tc = 0; tc < topLisClear.length; tc++) {
+            topLisClear[tc].classList.remove("crawlarc-nav-parent-active");
+          }
+          var mobDClr = nav.querySelectorAll(".nav-android-news--mobile");
+          for (var md = 0; md < mobDClr.length; md++) {
+            mobDClr[md].classList.remove("crawlarc-nav-parent-active");
+          }
+          var links2 = nav.querySelectorAll("a[href]");
+          for (var i = 0; i < links2.length; i++) {
+            links2[i].classList.remove("crawlarc-menu-active");
+            var liClr = links2[i].closest("li");
+            if (liClr) {
+              liClr.classList.remove("crawlarc-menu-active");
+              liClr.classList.remove("current-menu-item");
+              liClr.classList.remove("current_page_item");
+            }
+            var det =
+              links2[i].closest && links2[i].closest("details");
+            if (det) det.classList.remove("crawlarc-menu-active");
+          }
         } catch (err) {}
 
+        a.classList.add("crawlarc-menu-active");
         var li = a.closest && a.closest("li");
         if (li) {
           li.classList.add("crawlarc-menu-active");
           li.classList.add("current-menu-item");
           li.classList.add("current_page_item");
+        }
+        var clickedParent =
+          a.closest && a.closest("#menu-home > li.menu-item-has-children");
+        if (clickedParent) {
+          var inSubDesktop =
+            li &&
+            li.parentElement &&
+            li.parentElement.classList.contains("nav-android-submenu--desktop");
+          var inSubMobile =
+            li &&
+            li.parentElement &&
+            li.parentElement.classList.contains("sub-menu") &&
+            a.closest(".nav-news-details");
+          if ((inSubDesktop || inSubMobile) && clickedParent.contains(li)) {
+            clickedParent.classList.add("crawlarc-nav-parent-active");
+            var mobDW = clickedParent.querySelector(".nav-android-news--mobile");
+            if (mobDW) {
+              mobDW.classList.add("crawlarc-nav-parent-active");
+            }
+          }
+        }
+        var clickedDetails = a.closest && a.closest("details");
+        if (clickedDetails) clickedDetails.classList.add("crawlarc-menu-active");
+        var acc = a.closest && a.closest("details.nav-android-news--mobile");
+        if (acc) {
+          try {
+            acc.open = false;
+          } catch (er) {}
         }
       },
       true
@@ -513,6 +719,9 @@
       if (nav && navAnchor) navAnchor.appendChild(nav);
       if (secondary && secondaryAnchor) secondaryAnchor.appendChild(secondary);
     }
+    try {
+      setActiveMenuItem();
+    } catch (e) {}
   }
 
   if (mq.addEventListener) mq.addEventListener("change", syncLayout);
@@ -544,32 +753,6 @@
     }
   });
 
-  function highlightActiveNav() {
-    var path = window.location.pathname.replace(/\/$/, '') || '/';
-    var metaEl = document.querySelector('meta[name="nav-section"]');
-    var hint = metaEl ? metaEl.getAttribute('content').trim() : '';
-    var items = document.querySelectorAll('#menu-home > li');
-    for (var i = 0; i < items.length; i++) {
-      var li = items[i];
-      var a = li.querySelector('a[href]');
-      if (!a) continue;
-      var href = (a.getAttribute('href') || '').replace(/\/$/, '') || '/';
-      var active = false;
-      if (hint) {
-        // Page has declared its section via <meta name="nav-section">
-        active = href.indexOf(hint) !== -1;
-      } else {
-        if (href === path) {
-          active = true;
-        } else if (href.indexOf('.html') === -1 && href.length > 1) {
-          // Directory-style href (e.g. /android-development-tutorial)
-          active = path.indexOf(href) === 0;
-        }
-      }
-      if (active) li.classList.add('current-menu-item');
-    }
-  }
-
   function boot() {
     try {
       initGoogleTagManager();
@@ -587,7 +770,10 @@
       syncLayout();
     } catch (e) {}
     try {
-      highlightActiveNav();
+      setActiveMenuItem();
+    } catch (e) {}
+    try {
+      wireMenuActiveOnClick();
     } catch (e) {}
   }
   if (document.readyState === "loading")

@@ -22,22 +22,85 @@
   cursor: pointer;
 }
 
-/* ── Active / current nav item ──────────────────────────────────────────── */
-#access #menu-home > li.current-menu-item > a,
-#access #menu-home > li.current-menu-item > a:visited {
-  background-color: rgba(0, 0, 0, 0.38) !important;
+/* ── Active nav: mirror top-level :hover (#access > div > ul > li:hover) ─────── */
+/* Theme .current-menu-item uses inset shadow; override to hover look */
+
+#access > div > ul > li.menu-item-has-children.crawlarc-nav-parent-active {
+  background: #474747 !important;
+  background: linear-gradient(-90deg, #282828, #4f4f4f) !important;
+  border-left: none !important;
+  border-right: solid 1px #575757 !important;
+  box-shadow: none !important;
+}
+
+#access
+  > div
+  > ul
+  > li.menu-item-has-children.crawlarc-nav-parent-active
+  > .nav-android-news--desktop {
   color: #fff !important;
-  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.25);
+  font-weight: 700 !important;
+  text-decoration: none !important;
+}
+
+#access
+  details.nav-android-news--mobile.crawlarc-nav-parent-active
+  > .nav-news-summary {
+  font-weight: 700 !important;
+  color: #fff !important;
+}
+
+#access > div > ul > li.current-menu-item:not(.menu-item-home),
+#access > div > ul > li.crawlarc-menu-active:not(.menu-item-home) {
+  border-left: none !important;
+  border-right: solid 1px #575757 !important;
+  box-shadow: none !important;
+  background: #474747 !important;
+  background: linear-gradient(-90deg, #282828, #4f4f4f) !important;
+}
+
+#access > div > ul > li.menu-item-home.current-menu-item {
+  background: none !important;
+  border-right: solid 1px #575757 !important;
+  box-shadow: 1px 0 0 rgba(255, 255, 255, 0.1),
+    inset -1px 0 0 rgba(255, 255, 255, 0.1) !important;
+}
+
+#access #menu-home > li:not(.menu-item-home).current-menu-item > a,
+#access #menu-home > li:not(.menu-item-home).current-menu-item > a:visited,
+#access #menu-home > li:not(.menu-item-home).crawlarc-menu-active > a,
+#access #menu-home > li:not(.menu-item-home).crawlarc-menu-active > a:visited {
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  color: #fff !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
 }
 /* mobile drawer active */
 @media screen and (max-width: 768px) {
   #off-canvas-inner #menu-home > li.current-menu-item > a {
     background-color: rgba(255, 255, 255, 0.12) !important;
     color: #fff !important;
+    font-weight: 700 !important;
     border-left: 3px solid rgba(255, 255, 255, 0.65);
   }
 }
 
+#access ul ul li.crawlarc-menu-active > a,
+#access ul ul li.crawlarc-menu-active > a:visited {
+  background: #f3f3f3 !important;
+  color: #000 !important;
+  font-weight: normal !important;
+}
+
+/* Hover submenu Android News — không đậm, giống theme gốc */
+@media screen and (min-width: 769px) {
+  #access ul ul a:hover,
+  #access ul ul a:focus {
+    font-weight: normal !important;
+  }
+}
 /* ── Pager: 2-button Newer / Older navigation ──────────────────────────── */
 .crawlarc-pager {
   clear: both;
@@ -141,7 +204,7 @@ a.crawlarc-pager__btn:focus {
 
 /* Keep "hover" look after clicking (focused) */
 /* Target the real WP-like structure: #access ... .menu-home-container > ul.menu */
-#access ul.menu > li:focus-within {
+#access ul.menu > li:not(.menu-item-home):focus-within {
   background: #474747;
   background: -webkit-gradient(
     linear,
@@ -156,7 +219,8 @@ a.crawlarc-pager__btn:focus {
   -moz-box-shadow: none;
   box-shadow: none;
 }
-#access ul.menu > li.crawlarc-menu-active {
+/* Active top bar (not Home — sprite lives on Home <a> only) */
+#access ul.menu > li.crawlarc-menu-active:not(.menu-item-home) {
   background: #474747 !important;
   background: -webkit-gradient(
     linear,
@@ -171,7 +235,7 @@ a.crawlarc-pager__btn:focus {
   -moz-box-shadow: none !important;
   box-shadow: none !important;
 }
-#access ul.menu > li.crawlarc-menu-active > a {
+#access ul.menu > li.crawlarc-menu-active:not(.menu-item-home) > a {
   background: transparent !important;
   /* Some themes paint background on <a>, so ensure it's visibly "selected" */
   background: -webkit-gradient(
@@ -186,16 +250,49 @@ a.crawlarc-pager__btn:focus {
   color: #fff !important;
 }
 
-/* Active state for nested menu items (sub-menus) */
-#access li.crawlarc-menu-active > a {
-  color: #fff !important;
+/* Home: restore sprite when current (desktop — mobile drawer hides sprite on purpose) */
+@media screen and (min-width: 769px) {
+  #access ul.menu > li.menu-item-home.crawlarc-menu-active > a,
+  #access ul.menu > li.menu-item-home.current-menu-item > a {
+    background-image: url("../images/home-icon.png") !important;
+    background-repeat: no-repeat !important;
+    background-position: 14px center !important;
+    background-color: transparent !important;
+    -webkit-background-clip: padding-box !important;
+    background-clip: padding-box !important;
+    background-size: auto !important;
+    width: 16px !important;
+    text-indent: -9000em !important;
+    color: transparent !important;
+  }
+  #access ul.menu > li.menu-item-home.current-menu-item > a:hover,
+  #access ul.menu > li.menu-item-home.crawlarc-menu-active > a:hover {
+    background-position: -41px center !important;
+  }
 }
+
+/* Submenu crawlarc-active: chỉ nền + màu chữ giống hover, không đậm/không trắng */
 #access ul.sub-menu li.crawlarc-menu-active {
-  background: rgba(255, 255, 255, 0.08) !important;
+  background: transparent !important;
 }
 #access ul.sub-menu li.crawlarc-menu-active > a {
-  background: transparent !important;
+  background: #f3f3f3 !important;
+  color: #000 !important;
+  font-weight: normal !important;
+}
+
+/* Áp color trắng crawlarc chỉ cho link top-level của #menu-home (không phải mục con) */
+#access #menu-home > li:not(.menu-item-has-children).crawlarc-menu-active > a,
+#access #menu-home > li:not(.menu-item-has-children).current-menu-item > a {
   color: #fff !important;
+}
+
+@media screen and (max-width: 768px) {
+  /* Drawer: submenu active không đậm */
+  #off-canvas-inner #access .nav-android-news--mobile .sub-menu a,
+  #off-canvas-inner #access .nav-android-news--mobile .sub-menu a:hover {
+    font-weight: normal !important;
+  }
 }
 
 /* If a <details> section contains the active link, highlight its summary */
